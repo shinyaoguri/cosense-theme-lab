@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
+import { optionsVirtualModule } from "@cosense-site-kit/theme-utils/integration";
 
 export interface ThemeLabNavItem {
   label: string;
@@ -37,7 +38,6 @@ export interface ThemeLabOptions {
 }
 
 const VIRTUAL_ID = "virtual:cosense-theme-lab/options";
-const VIRTUAL_RESOLVED = `\0${VIRTUAL_ID}`;
 
 export default function themeLab(opts: ThemeLabOptions = {}): AstroIntegration {
   const options = {
@@ -56,7 +56,7 @@ export default function themeLab(opts: ThemeLabOptions = {}): AstroIntegration {
     hooks: {
       "astro:config:setup": ({ injectRoute, updateConfig }) => {
         updateConfig({
-          vite: { plugins: [virtualOptionsPlugin(options)] },
+          vite: { plugins: [optionsVirtualModule(VIRTUAL_ID, options)] },
         });
 
         // Vendored theme: .astro templates sit next to this file under theme/,
@@ -81,22 +81,6 @@ export default function themeLab(opts: ThemeLabOptions = {}): AstroIntegration {
           entrypoint: here("templates/_dispatcher.astro"),
         });
       },
-    },
-  };
-}
-
-function virtualOptionsPlugin(options: unknown) {
-  return {
-    name: "cosense-theme-lab-virtual-options",
-    resolveId(id: string) {
-      if (id === VIRTUAL_ID) return VIRTUAL_RESOLVED;
-      return null;
-    },
-    load(id: string) {
-      if (id === VIRTUAL_RESOLVED) {
-        return `export default ${JSON.stringify(options)};`;
-      }
-      return null;
     },
   };
 }
