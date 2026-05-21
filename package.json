@@ -1,0 +1,22 @@
+{
+  "name": "cosense-site-lab",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "cosense-site fetch && astro build",
+    "preview": "astro preview",
+    "fetch": "cosense-site fetch",
+    "validate": "cosense-site validate"
+  },
+  "dependencies": {
+    "@cosense-site-kit/astro": "^0.1.0",
+    "@cosense-site-kit/cli": "^0.1.0",
+    "@cosense-site-kit/core": "^0.1.0",
+    "@cosense-site-kit/theme-utils": "^0.1.0",
+    "astro": "^6.0.0",
+    "yaml": "^2.6.0",
+    "zod": "^3.23.0"
+  }
+}
