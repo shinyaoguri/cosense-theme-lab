@@ -27,6 +27,7 @@ const lang = site?.lang ?? "ja";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {metaDescription && <meta name="description" content={metaDescription} />}
+    {site?.icon && <link rel="icon" href={site.icon} />}
     <KaTeXLink />
     <title>{fullTitle}</title>
   </head>
