@@ -2,15 +2,16 @@ import { defineCosenseSite } from "@cosense-site-kit/core";
 
 export default defineCosenseSite({
   site: {
-    title: "My Lab",
-    description: "Built with cosense-site-kit",
-    baseUrl: "https://my-lab.example",
+    title: "cosense-theme-lab",
+    description: "cosense-theme-lab is a theme of cosense-site-kit",
+    baseUrl: "https://shinyaoguri.github.io",
+    base: "/cosense-theme-lab",
     lang: "ja",
   },
 
   source: {
     type: "cosense",
-    project: "your-lab-project",
+    project: "cosense-site-lab",
   },
 
   publish: {

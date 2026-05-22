@@ -1,4 +1,4 @@
-# cosense-site-lab
+# cosense-theme-lab
 
 A research-lab website from a public [Cosense](https://scrapbox.io) project. Members, research topics, publications, and news come from one Cosense project; deploys to GitHub Pages via GitHub Actions (cron, twice daily).
 
