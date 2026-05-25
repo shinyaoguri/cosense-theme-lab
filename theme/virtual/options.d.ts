@@ -4,7 +4,7 @@ declare module "virtual:cosense-theme-lab/options" {
     page?: string;
     href?: string;
   }
-  export interface ThemeLabOptions {
+  export interface ThemeLabRuntimeOptions {
     siteTitle?: string;
     siteDescription?: string;
     nav: ThemeLabNavItem[];
@@ -13,7 +13,12 @@ declare module "virtual:cosense-theme-lab/options" {
     newsTag: string;
     affiliation?: string;
     copyrightHolder?: string;
+    copyrightUrl?: string;
+    tokens: Record<string, string>;
+    colorScheme?: "light" | "dark";
+    fontHref?: string;
+    search: boolean;
   }
-  const options: ThemeLabOptions;
+  const options: ThemeLabRuntimeOptions;
   export default options;
 }

@@ -1,34 +1,47 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import Layout from "../components/Layout.astro";
+import { formatDate, isPublicTag, path } from "@cosense-site-kit/theme-utils";
 import PageContent from "@cosense-site-kit/theme-utils/components/PageContent.astro";
 import Backlinks from "@cosense-site-kit/theme-utils/components/Backlinks.astro";
-import { isPublicTag, path } from "@cosense-site-kit/theme-utils";
+import Related from "@cosense-site-kit/theme-utils/components/Related.astro";
+import Layout from "../components/Layout.astro";
 
 interface Props { entry: CollectionEntry<"pages"> }
 const { entry } = Astro.props;
 const page = entry.data;
+
+const publishedDay = formatDate(page.publishedAt);
+const updatedDay = formatDate(page.modifiedAt);
+const showUpdated = updatedDay && updatedDay !== publishedDay;
 const tags = page.tags.filter(isPublicTag);
 ---
-<Layout title={page.title} description={page.summary}>
-  <article class="prose">
-    <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin: 0 0 0.5rem">
-      <a href={path("research")}>← Research</a>
-    </p>
-    <h1>{page.title}</h1>
-    {tags.length > 0 && (
-      <p>
-        {tags.map((t) => (
-          <a class="tag" href={path(`tags/${t}`)}>#{t}</a>
-        ))}
-      </p>
-    )}
+<Layout title={page.title} description={page.summary} image={page.image} ogType="article">
+  <article data-pagefind-body>
+    <p class="post-backlink"><a href={path("research")}>← Research</a></p>
+    <header class="page-header">
+      {page.draft && <span class="draft-badge">Draft · preview only</span>}
+      <h1>{page.title}</h1>
+      <div class="page-meta">
+        {publishedDay && <time class="updated" datetime={page.publishedAt}>{publishedDay}</time>}
+        {showUpdated && <time class="updated" datetime={page.modifiedAt}>Updated {updatedDay}</time>}
+        {tags.length > 0 && (
+          <div class="tags">
+            {tags.map((t) => (
+              <a class="tag" href={path(`tags/${t}`)}>#{t}</a>
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+
     <PageContent blocks={page.blocks} />
+
     <Backlinks backlinks={page.backlinks} />
-    <p class="source-link">
-      <a href={page.sourceUrl} target="_blank" rel="noopener noreferrer">
-        Source on Cosense ↗
-      </a>
-    </p>
+
+    <Related title={page.title} links={page.links} exclude={page.backlinks} />
+
+    <footer class="source" data-pagefind-ignore>
+      <a href={page.sourceUrl} target="_blank" rel="noopener noreferrer">Source on Cosense ↗</a>
+    </footer>
   </article>
 </Layout>

@@ -1,22 +1,51 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import Layout from "../components/Layout.astro";
+import { formatDate, isPublicTag, path } from "@cosense-site-kit/theme-utils";
 import PageContent from "@cosense-site-kit/theme-utils/components/PageContent.astro";
 import Backlinks from "@cosense-site-kit/theme-utils/components/Backlinks.astro";
+import Related from "@cosense-site-kit/theme-utils/components/Related.astro";
+import Layout from "../components/Layout.astro";
 
-interface Props { entry: CollectionEntry<"pages"> }
+interface Props {
+  entry: CollectionEntry<"pages">;
+}
+
 const { entry } = Astro.props;
 const page = entry.data;
+
+const publishedDay = formatDate(page.publishedAt);
+const updatedDay = formatDate(page.modifiedAt);
+// Only show the updated date when it actually differs from the publish date,
+// so a page edited the same day it was published shows a single date.
+const showUpdated = updatedDay && updatedDay !== publishedDay;
+const tags = page.tags.filter(isPublicTag);
 ---
-<Layout title={page.title} description={page.summary}>
-  <article class="prose">
-    <h1>{page.title}</h1>
+<Layout title={page.title} description={page.summary} image={page.image} ogType="article">
+  <article data-pagefind-body>
+    <header class="page-header">
+      {page.draft && <span class="draft-badge">Draft · preview only</span>}
+      <h1>{page.title}</h1>
+      <div class="page-meta">
+        {publishedDay && <time class="updated" datetime={page.publishedAt}>{publishedDay}</time>}
+        {showUpdated && <time class="updated" datetime={page.modifiedAt}>Updated {updatedDay}</time>}
+        {tags.length > 0 && (
+          <div class="tags">
+            {tags.map((tag) => (
+              <a class="tag" href={path(`tags/${tag}`)}>#{tag}</a>
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+
     <PageContent blocks={page.blocks} />
+
     <Backlinks backlinks={page.backlinks} />
-    <p class="source-link">
-      <a href={page.sourceUrl} target="_blank" rel="noopener noreferrer">
-        Source on Cosense ↗
-      </a>
-    </p>
+
+    <Related title={page.title} links={page.links} exclude={page.backlinks} />
+
+    <footer class="source" data-pagefind-ignore>
+      <a href={page.sourceUrl} target="_blank" rel="noopener noreferrer">Source on Cosense ↗</a>
+    </footer>
   </article>
 </Layout>

@@ -4,11 +4,25 @@ import site from "virtual:cosense-site-kit/site";
 
 const year = new Date().getFullYear();
 const holder = options.copyrightHolder ?? options.siteTitle ?? site?.title ?? "";
+const holderUrl = options.copyrightUrl;
 const affiliation = options.affiliation;
 ---
 <footer class="site-footer">
   <div class="site-footer-inner">
-    <span>&copy; {year} {holder}</span>
-    {affiliation && <span>{affiliation}</span>}
+    <span>
+      &copy; {year}{" "}
+      {holderUrl ? (
+        <a href={holderUrl} target="_blank" rel="noopener noreferrer">{holder}</a>
+      ) : (
+        holder
+      )}
+      {affiliation && <span class="site-footer-affiliation">· {affiliation}</span>}
+    </span>
+    <span>
+      Built with{" "}
+      <a href="https://github.com/shinyaoguri/cosense-site-kit" target="_blank" rel="noopener noreferrer">
+        cosense-site-kit
+      </a>
+    </span>
   </div>
 </footer>

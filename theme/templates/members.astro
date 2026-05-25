@@ -1,7 +1,9 @@
 ---
+import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import Layout from "../components/Layout.astro";
 import PageContent from "@cosense-site-kit/theme-utils/components/PageContent.astro";
+import { path } from "@cosense-site-kit/theme-utils";
 import { asGroups, extractMembers, initialsOf } from "../lib/members";
 
 interface Props { entry: CollectionEntry<"pages"> }
@@ -9,27 +11,53 @@ const { entry } = Astro.props;
 const page = entry.data;
 const data = extractMembers(page.blocks);
 const groups = data ? asGroups(data) : [];
+
+// When a (published) Cosense page is titled exactly like the member, link the
+// card to it and use the first image in its body (core's resolved `image`
+// field) as the avatar. Build title → slug / first-image maps once so each
+// member is a cheap lookup. The avatar falls back to an explicit members.yaml
+// `photo`, then to the initials placeholder; the link is omitted when there's
+// no matching page.
+const all = await getCollection("pages");
+const imageByTitle = new Map<string, string>();
+const slugByTitle = new Map<string, string>();
+for (const e of all) {
+  if (!slugByTitle.has(e.data.title)) slugByTitle.set(e.data.title, e.data.slug);
+  if (e.data.image && !imageByTitle.has(e.data.title)) {
+    imageByTitle.set(e.data.title, e.data.image);
+  }
+}
 ---
-<Layout title={page.title} description={page.summary} wide>
-  <article>
-    <h1 style="font-family: var(--font-serif); font-size: 1.75rem; margin: 0 0 1.5rem">
-      {page.title}
-    </h1>
+<Layout title={page.title} description={page.summary} image={page.image} wide hideToc>
+  <article data-pagefind-body>
+    <header class="page-header">
+      <h1>{page.title}</h1>
+    </header>
 
     {data ? (
       groups.map((group) => (
         <section class="members-group">
           {group.name && <h2>{group.name}</h2>}
           <ul class="members-list">
-            {group.members.map((m) => (
+            {group.members.map((m) => {
+              // Explicit photo wins; otherwise the member's name-page first image.
+              const photo = m.photo ?? imageByTitle.get(m.name);
+              const memberSlug = slugByTitle.get(m.name);
+              const memberHref = memberSlug ? path(memberSlug) : undefined;
+              const avatar = photo ? (
+                <img class="member-photo" src={photo} alt={m.name} loading="lazy" decoding="async" />
+              ) : (
+                <span class="member-photo-placeholder">{initialsOf(m.name)}</span>
+              );
+              return (
               <li class="member-card">
-                {m.photo ? (
-                  <img class="member-photo" src={m.photo} alt={m.name} loading="lazy" />
-                ) : (
-                  <span class="member-photo-placeholder">{initialsOf(m.name)}</span>
-                )}
+                {memberHref ? (
+                  <a class="member-avatar-link" href={memberHref} aria-label={m.name}>{avatar}</a>
+                ) : avatar}
                 <div>
-                  <p class="member-name">{m.name}</p>
+                  <p class="member-name">
+                    {memberHref ? <a href={memberHref}>{m.name}</a> : m.name}
+                  </p>
                   {m.role && <p class="member-role">{m.role}</p>}
                   {m.bio && <p class="member-bio">{m.bio}</p>}
                   {(m.links?.length || m.email) && (
@@ -42,18 +70,19 @@ const groups = data ? asGroups(data) : [];
                   )}
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       ))
     ) : (
-      <div class="prose">
-        <p style="color: var(--color-text-muted)">
+      <>
+        <p class="summary">
           メンバー一覧は <code>code:members.yaml</code> ブロックで定義してください
           (詳細は <a href="https://github.com/shinyaoguri/cosense-site-kit/blob/main/packages/theme-lab/README.md">theme-lab README</a>)。
         </p>
         <PageContent blocks={page.blocks} hideFilenames={["members.yaml"]} />
-      </div>
+      </>
     )}
   </article>
 </Layout>

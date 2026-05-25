@@ -16,26 +16,24 @@ let items = all
   .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0));
 if (limit && limit > 0) items = items.slice(0, limit);
 ---
-<Layout title="News" description="ニュース・お知らせ">
-  <article>
-    <h1 style="font-family: var(--font-serif); font-size: 1.75rem; margin: 0 0 1.5rem">
-      News
-    </h1>
-    {items.length === 0 ? (
-      <p style="color: var(--color-text-muted)">
-        ニュースは <code>#{tag}</code> タグ付きのページとして公開してください。
-      </p>
-    ) : (
-      <ul class="news-list">
-        {items.map((n) => (
-          <li>
-            <time class="news-date" datetime={n.date?.toISOString()}>
-              {formatNewsDate(n.date)}
-            </time>
-            <a class="news-link" href={path(n.slug)}>{n.title}</a>
-          </li>
-        ))}
-      </ul>
-    )}
-  </article>
+<Layout title="News" description="ニュース・お知らせ" hideToc>
+  <header class="page-header">
+    <h1>News</h1>
+  </header>
+  {items.length === 0 ? (
+    <p class="summary">
+      ニュースは <code>#{tag}</code> タグ付きのページとして公開してください。
+    </p>
+  ) : (
+    <ul class="news-list">
+      {items.map((n) => (
+        <li>
+          <time class="news-date" datetime={n.date?.toISOString()}>
+            {formatNewsDate(n.date)}
+          </time>
+          <a class="news-link" href={path(n.slug)}>{n.title}</a>
+        </li>
+      ))}
+    </ul>
+  )}
 </Layout>

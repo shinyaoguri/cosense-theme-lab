@@ -1,0 +1,93 @@
+import { createReadStream, existsSync, statSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { AstroIntegration } from "astro";
+
+// Full-text search via Pagefind. We build the index from the static HTML at
+// `astro:build:done` (Pagefind's Node API) and write it to dist/pagefind/, and
+// in dev we serve a previously built bundle so the search box works after at
+// least one build. This is inlined rather than using the astro-pagefind
+// package because that package ships raw .ts under node_modules, which Astro's
+// config loader can't type-strip (Node refuses to strip types in node_modules).
+
+const MIME: Record<string, string> = {
+  ".js": "text/javascript",
+  ".css": "text/css",
+  ".json": "application/json",
+  ".wasm": "application/wasm",
+};
+
+// Vendored-theme caveat: this integration ships as raw .ts under theme/, so it
+// is loaded through Astro's Vite config loader. A plain `import("pagefind")`
+// here would be rewritten to Vite's SSR module runner — which is already torn
+// down by the time astro:build:done fires ("Vite module runner has been
+// closed"). Evaluating the dynamic import through the Function constructor
+// bypasses Vite's transform so it uses Node's native loader (resolving pagefind
+// from the project's node_modules). The published theme-default package builds
+// to JS and so doesn't need this.
+const nativeImport = new Function("specifier", "return import(specifier)") as (
+  specifier: string,
+) => Promise<typeof import("pagefind")>;
+
+export function pagefindIntegration(): AstroIntegration {
+  let outDir: string | undefined;
+  // Base path with a guaranteed trailing slash ("/" or "/repo/"), used to match
+  // dev requests that Astro serves under the configured base.
+  let base = "/";
+
+  return {
+    name: "cosense-theme-lab/pagefind",
+    hooks: {
+      "astro:config:setup": ({ config }) => {
+        outDir = fileURLToPath(config.outDir);
+        base = config.base.endsWith("/") ? config.base : `${config.base}/`;
+      },
+
+      // Dev convenience: serve <outDir>/pagefind/* (from a prior build) so the
+      // search box returns results in `astro dev` without wiring a separate
+      // server. No build has its own index, so this is stale until you rebuild.
+      "astro:server:setup": ({ server }) => {
+        server.middlewares.use((req, res, next) => {
+          if (!req.url || !outDir) return next();
+          const reqPath = req.url.split("?")[0] ?? "";
+          // Vite strips the configured base from req.url, but a request can also
+          // arrive base-prefixed depending on the setup — accept both forms.
+          let rel: string | null = null;
+          if (reqPath.startsWith(`${base}pagefind/`)) rel = reqPath.slice(base.length);
+          else if (reqPath.startsWith("/pagefind/")) rel = reqPath.slice(1);
+          if (rel === null) return next();
+          const file = path.join(outDir, decodeURIComponent(rel));
+          // Contain path traversal to the output directory.
+          if (!file.startsWith(outDir) || !existsSync(file) || !statSync(file).isFile()) {
+            return next();
+          }
+          res.setHeader("content-type", MIME[path.extname(file)] ?? "application/octet-stream");
+          createReadStream(file).pipe(res);
+        });
+      },
+
+      "astro:build:done": async ({ dir, logger }) => {
+        const target = fileURLToPath(dir);
+        const { createIndex } = await nativeImport("pagefind");
+        const { index, errors } = await createIndex();
+        if (!index) {
+          logger.error(
+            `Pagefind: failed to create index${errors.length ? `: ${errors.join(", ")}` : ""}`,
+          );
+          return;
+        }
+        const added = await index.addDirectory({ path: target });
+        if (added.errors.length) {
+          logger.error(`Pagefind: failed to index files: ${added.errors.join(", ")}`);
+          return;
+        }
+        const written = await index.writeFiles({ outputPath: path.join(target, "pagefind") });
+        if (written.errors.length) {
+          logger.error(`Pagefind: failed to write index: ${written.errors.join(", ")}`);
+          return;
+        }
+        logger.info(`Pagefind: indexed ${added.page_count} page(s) → /pagefind/`);
+      },
+    },
+  };
+}

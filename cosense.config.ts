@@ -11,7 +11,7 @@ export default defineCosenseSite({
 
   source: {
     type: "cosense",
-    project: "cosense-site-lab",
+    project: "cosense-theme-lab",
   },
 
   publish: {

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import options from "virtual:cosense-theme-lab/options";
+import site from "virtual:cosense-site-kit/site";
 import Layout from "../components/Layout.astro";
 import PageContent from "@cosense-site-kit/theme-utils/components/PageContent.astro";
 import { loadStructure, path } from "@cosense-site-kit/theme-utils";
@@ -13,6 +14,9 @@ const homeEntry = homeTarget
   ? all.find((e) => e.data.title === homeTarget || e.data.slug === homeTarget)
   : undefined;
 
+const siteTitle = options.siteTitle ?? site?.title ?? "Home";
+const siteDescription = options.siteDescription ?? site?.description;
+
 // Recent news (most recent N tagged with the news tag).
 const newsTag = structure.posts?.tag ?? options.newsTag;
 const news = all
@@ -22,23 +26,27 @@ const news = all
   .slice(0, structure.posts?.limit ?? 5);
 
 // Up to 4 featured research topics (preserves .site `featured` order).
-const researchTag = options.researchTag;
 const titleToEntry = new Map(all.map((e) => [e.data.title, e]));
 const featured = structure.featured
   .map((title) => titleToEntry.get(title))
   .filter((e): e is NonNullable<typeof e> => Boolean(e))
   .slice(0, 4);
 ---
-<Layout title="Home" wide>
-  {homeEntry && (
-    <section class="prose">
+<Layout title={siteTitle} description={siteDescription} wide hideToc>
+  {homeEntry ? (
+    <section data-pagefind-body>
       <PageContent blocks={homeEntry.data.blocks} />
     </section>
+  ) : (
+    <header class="page-header">
+      <h1>{siteTitle}</h1>
+      {siteDescription && <p class="summary" style="font-size: 1rem">{siteDescription}</p>}
+    </header>
   )}
 
   {featured.length > 0 && (
-    <section style="margin-top: 3rem">
-      <h2 style="font-size: 1.125rem; margin-bottom: 1rem">Featured research</h2>
+    <section class="home-section">
+      <h2 class="section-heading">Featured research</h2>
       <ul class="research-grid">
         {featured.map((entry) => (
           <li>
@@ -53,8 +61,8 @@ const featured = structure.featured
   )}
 
   {news.length > 0 && (
-    <section style="margin-top: 3rem">
-      <h2 style="font-size: 1.125rem; margin-bottom: 1rem">Recent news</h2>
+    <section class="home-section">
+      <h2 class="section-heading">Recent news</h2>
       <ul class="news-list">
         {news.map((n) => (
           <li>

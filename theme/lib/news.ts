@@ -50,12 +50,14 @@ export function newsSummary(entry: {
     slug: string;
     summary?: string;
     blocks: CosenseBlock[];
-    createdAt?: string;
-    updatedAt?: string;
+    publishedAt?: string;
+    modifiedAt?: string;
   };
 }): NewsSummary {
   const description = entry.data.summary?.trim() || firstParagraph(entry.data.blocks);
-  const iso = entry.data.createdAt ?? entry.data.updatedAt ?? null;
+  // Resolved display dates: publishedAt honours a `#published/YYYY-MM-DD` tag
+  // and falls back to the Cosense created timestamp (see core's page schema).
+  const iso = entry.data.publishedAt ?? entry.data.modifiedAt ?? null;
   return {
     title: entry.data.title,
     slug: entry.data.slug,

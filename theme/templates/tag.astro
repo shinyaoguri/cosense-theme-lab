@@ -24,17 +24,19 @@ const { tag } = Astro.params;
 const { entries } = Astro.props as {
   entries: Awaited<ReturnType<typeof getCollection<"pages">>>;
 };
+const total = entries.length;
 ---
-<Layout title={`#${tag}`}>
-  <article class="prose">
+<Layout title={`#${tag}`} hideToc>
+  <header class="page-header">
     <h1>#{tag}</h1>
-    <ul>
-      {entries.map((entry) => (
-        <li>
-          <a href={path(entry.data.slug)}>{entry.data.title}</a>
-          {entry.data.summary && <p style="color: var(--color-text-muted); font-size: 0.875rem; margin: 0.25rem 0 0">{entry.data.summary}</p>}
-        </li>
-      ))}
-    </ul>
-  </article>
+    <p class="summary">{total} page{total === 1 ? "" : "s"}</p>
+  </header>
+  <ul class="tag-page-list">
+    {entries.map((entry) => (
+      <li>
+        <a href={path(entry.data.slug)}>{entry.data.title}</a>
+        {entry.data.summary && <p class="summary">{entry.data.summary}</p>}
+      </li>
+    ))}
+  </ul>
 </Layout>
