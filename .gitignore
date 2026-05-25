@@ -7,5 +7,3 @@ public/cosense-icons/
 .env.local
 .DS_Store
 *.tsbuildinfo
-
-package-lock.json
