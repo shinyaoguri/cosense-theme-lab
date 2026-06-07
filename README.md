@@ -1,6 +1,6 @@
 # cosense-theme-lab
 
-A research-lab website from a public [Cosense](https://scrapbox.io) project. Members, research topics, publications, and news come from one Cosense project; deploys to GitHub Pages via GitHub Actions (cron, twice daily).
+A research-lab website from a public [Cosense](https://scrapbox.io) project. Members, publications, and news come from one Cosense project; deploys to GitHub Pages via GitHub Actions (cron, twice daily).
 
 > **テンプレートリポジトリです。** テーマのコード（`theme/`）はこのリポジトリに同梱されており、**あなたのものとして自由に編集**できます。npm から取り込むのはフレームワーク（`@cosense-site-kit/*`）だけ。
 
@@ -26,7 +26,7 @@ A research-lab website from a public [Cosense](https://scrapbox.io) project. Mem
 見た目と構造は `theme/` にあります（fork して所有しているので直接編集可）:
 
 - `theme/components/Layout.astro` `Header.astro` `Footer.astro` — 枠と配色（CSS は `theme/styles/global.css`）
-- `theme/templates/` — `/research`・`/news` などのページ、`feed.xml`/`sitemap.xml` などの配信エンドポイント
+- `theme/templates/` — `/news` などのページ、`feed.xml`/`sitemap.xml` などの配信エンドポイント
 - `theme/presets/` — スキン（配色トークン）。`theme/styles/global.css` の `:root` トークンを上書きする
 - `theme/integration/pagefind.ts` — 検索インデックス生成
 - `theme/lib/` — `code:members.yaml` / `code:publications.yaml` のパース
@@ -35,9 +35,9 @@ A research-lab website from a public [Cosense](https://scrapbox.io) project. Mem
 
 ## Cosense 側のページ構成
 
-- `.site` の `code:site.yaml` — nav / home / featured など
+- `.site` の `code:site.yaml` — nav / home / posts など
 - `Members` ページの `code:members.yaml`、`Publications` ページの `code:publications.yaml`
-- `#research` / `#news` タグで研究テーマ・お知らせを分類
+- `#news` タグでお知らせを分類
 - **メンバーの顔写真とリンク** — メンバー名と同じタイトルの Cosense ページ（`#publish` で公開）があれば、メンバーカードがそのページにリンクし、本文先頭の画像が自動でアバターに使われます。`members.yaml` に `photo:` を明示すればアバターはそちらが優先。画像が無ければ頭文字プレースホルダ、ページが無ければリンクなし。
 
 ## ローカル開発

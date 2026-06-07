@@ -21,12 +21,6 @@ export interface ThemeLabOptions {
   /** Cosense title to embed at the top of the home route. */
   homePage?: string;
   /**
-   * Tag that marks a Cosense page as a research topic. Pages with this tag
-   * are listed on /research and rendered with the research-post template.
-   * Default: "research".
-   */
-  researchTag?: string;
-  /**
    * Tag that marks a Cosense page as a news / blog post. Pages with this
    * tag are listed on /news and rendered with the news-post template.
    * Default: "news".
@@ -77,7 +71,6 @@ export interface ThemeLabRuntimeOptions {
   siteDescription?: string;
   nav: ThemeLabNavItem[];
   homePage?: string;
-  researchTag: string;
   newsTag: string;
   affiliation?: string;
   copyrightHolder?: string;
@@ -101,7 +94,6 @@ export function resolveThemeOptions(opts: ThemeLabOptions = {}): ThemeLabRuntime
     siteDescription: opts.siteDescription ?? base.siteDescription,
     nav: opts.nav ?? base.nav ?? [],
     homePage: opts.homePage ?? base.homePage,
-    researchTag: opts.researchTag ?? base.researchTag ?? "research",
     newsTag: opts.newsTag ?? base.newsTag ?? "news",
     affiliation: opts.affiliation ?? base.affiliation,
     copyrightHolder: opts.copyrightHolder ?? base.copyrightHolder,
@@ -140,10 +132,6 @@ export default function themeLab(opts: ThemeLabOptions = {}): AstroIntegration {
 
         // Fixed-route templates: each owns a known URL.
         injectRoute({ pattern: "/", entrypoint: here("templates/home.astro") });
-        injectRoute({
-          pattern: "/research",
-          entrypoint: here("templates/research-index.astro"),
-        });
         injectRoute({
           pattern: "/news",
           entrypoint: here("templates/news-index.astro"),

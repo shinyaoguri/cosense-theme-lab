@@ -24,13 +24,6 @@ const news = all
   .map((e) => newsSummary(e))
   .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
   .slice(0, structure.posts?.limit ?? 5);
-
-// Up to 4 featured research topics (preserves .site `featured` order).
-const titleToEntry = new Map(all.map((e) => [e.data.title, e]));
-const featured = structure.featured
-  .map((title) => titleToEntry.get(title))
-  .filter((e): e is NonNullable<typeof e> => Boolean(e))
-  .slice(0, 4);
 ---
 <Layout title={siteTitle} description={siteDescription} wide hideToc>
   {homeEntry ? (
@@ -42,22 +35,6 @@ const featured = structure.featured
       <h1>{siteTitle}</h1>
       {siteDescription && <p class="summary" style="font-size: 1rem">{siteDescription}</p>}
     </header>
-  )}
-
-  {featured.length > 0 && (
-    <section class="home-section">
-      <h2 class="section-heading">Featured research</h2>
-      <ul class="research-grid">
-        {featured.map((entry) => (
-          <li>
-            <a class="research-card" href={path(entry.data.slug)}>
-              <h3>{entry.data.title}</h3>
-              {entry.data.summary && <p>{entry.data.summary}</p>}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
   )}
 
   {news.length > 0 && (

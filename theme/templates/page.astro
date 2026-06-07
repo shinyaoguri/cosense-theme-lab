@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { formatDate, isPublicTag, path } from "@cosense-site-kit/theme-utils";
+import { formatDate } from "@cosense-site-kit/theme-utils";
 import PageContent from "@cosense-site-kit/theme-utils/components/PageContent.astro";
 import Backlinks from "@cosense-site-kit/theme-utils/components/Backlinks.astro";
 import Related from "@cosense-site-kit/theme-utils/components/Related.astro";
@@ -18,7 +18,6 @@ const updatedDay = formatDate(page.modifiedAt);
 // Only show the updated date when it actually differs from the publish date,
 // so a page edited the same day it was published shows a single date.
 const showUpdated = updatedDay && updatedDay !== publishedDay;
-const tags = page.tags.filter(isPublicTag);
 ---
 <Layout title={page.title} description={page.summary} image={page.image} ogType="article">
   <article data-pagefind-body>
@@ -28,13 +27,6 @@ const tags = page.tags.filter(isPublicTag);
       <div class="page-meta">
         {publishedDay && <time class="updated" datetime={page.publishedAt}>{publishedDay}</time>}
         {showUpdated && <time class="updated" datetime={page.modifiedAt}>Updated {updatedDay}</time>}
-        {tags.length > 0 && (
-          <div class="tags">
-            {tags.map((tag) => (
-              <a class="tag" href={path(`tags/${tag}`)}>#{tag}</a>
-            ))}
-          </div>
-        )}
       </div>
     </header>
 

@@ -9,7 +9,6 @@ declare module "virtual:cosense-theme-lab/options" {
     siteDescription?: string;
     nav: ThemeLabNavItem[];
     homePage?: string;
-    researchTag: string;
     newsTag: string;
     affiliation?: string;
     copyrightHolder?: string;

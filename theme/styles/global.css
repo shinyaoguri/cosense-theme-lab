@@ -1,7 +1,7 @@
 /* theme-lab — academic / research-lab visual identity.
    Restrained navy accent, Shippori Mincho display headings over an M PLUS 2
    body, generous horizontal rhythm. Tuned for content-dense lab sites: members
-   lists, publication entries, research topics.
+   lists, publication entries, news.
 
    The palette is expressed entirely as `:root` design tokens so a preset
    (skin) can recolour the whole theme by overriding them — see presets/dark.ts
@@ -39,7 +39,7 @@
   /* Sticky header backdrop (semi-transparent over the page) */
   --color-header-bg: rgb(255 255 255 / 0.85);
 
-  /* Legacy alias kept for member/research card fills. */
+  /* Legacy alias kept for member card fills. */
   --color-surface: var(--color-bg-soft);
 
   /* Sizes */
@@ -346,6 +346,10 @@ h1, h2, h3, h4, h5, h6 {
 /* ===================== Page header ===================== */
 
 .page-header { margin-bottom: 2.5rem; }
+/* Article pages: the title + date sit directly above the prose (the header no
+   longer carries a tag row — tags render in the body), so tighten that gap.
+   Index pages keep the roomier 2.5rem above their lists/grids. */
+article > .page-header { margin-bottom: 1.5rem; }
 .page-header h1 {
   font-size: 2rem;
   margin: 0 0 0.75rem;
@@ -795,33 +799,6 @@ html[data-theme="dark"] .page-content .astro-code span {
 .member-role { font-size: 0.75rem; color: var(--color-text-muted); margin: 0.125rem 0; }
 .member-bio { font-size: 0.8125rem; color: var(--color-text-soft); margin: 0.375rem 0 0; line-height: 1.55; }
 .member-links { margin-top: 0.375rem; display: flex; gap: 0.625rem; font-size: 0.75rem; }
-
-/* ===================== Research ===================== */
-
-.research-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-  gap: 1.25rem;
-  padding: 0;
-  list-style: none;
-  margin: 0;
-}
-.research-card {
-  display: block;
-  padding: 1.25rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-bg);
-  text-decoration: none;
-  transition: border-color 0.15s var(--ease), transform 0.15s var(--ease);
-}
-.research-card:hover {
-  border-color: var(--color-accent);
-  text-decoration: none;
-  transform: translateY(-1px);
-}
-.research-card h3 { font-size: 1rem; margin: 0 0 0.5rem; color: var(--color-text); }
-.research-card p { font-size: 0.8125rem; color: var(--color-text-soft); margin: 0; line-height: 1.55; }
 
 /* ===================== News list ===================== */
 
