@@ -107,8 +107,16 @@ const htmlStyle = [
     {ogImage && <meta name="twitter:image" content={ogImage} />}
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
-    {/* The lab skin uses the system font stack by default; a preset can load a
-        web font by setting fontHref (pair it with --font-* token overrides). */}
+    {/* Japanese-first web fonts: M PLUS 2 body, Shippori Mincho serif display
+        headings, M PLUS 1 Code mono — paired with the --font-* tokens in
+        styles/global.css. Loaded for every skin; a preset can still layer an
+        extra face via fontHref (pair it with --font-* token overrides). */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@400;500&family=M+PLUS+2:wght@400;500;600;700&family=Shippori+Mincho:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
     {fontHref && <link href={fontHref} rel="stylesheet" />}
     <KaTeXLink />
     <title>{fullTitle}</title>

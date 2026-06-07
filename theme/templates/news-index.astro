@@ -16,7 +16,7 @@ let items = all
   .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0));
 if (limit && limit > 0) items = items.slice(0, limit);
 ---
-<Layout title="News" description="ニュース・お知らせ" hideToc>
+<Layout title="News" description="ニュース・お知らせ" wide hideToc>
   <header class="page-header">
     <h1>News</h1>
   </header>
@@ -25,15 +25,44 @@ if (limit && limit > 0) items = items.slice(0, limit);
       ニュースは <code>#{tag}</code> タグ付きのページとして公開してください。
     </p>
   ) : (
-    <ul class="news-list">
-      {items.map((n) => (
-        <li>
-          <time class="news-date" datetime={n.date?.toISOString()}>
-            {formatNewsDate(n.date)}
-          </time>
-          <a class="news-link" href={path(n.slug)}>{n.title}</a>
-        </li>
-      ))}
+    <ul class="news-feed">
+      {items.map((n) => {
+        // Drop the news tag itself — every card would carry it, so it's noise.
+        const cardTags = n.tags.filter((t) => t !== tag);
+        return (
+          <li class="news-card">
+            <a class="news-card__link" href={path(n.slug)}>
+              {n.image ? (
+                <span class="news-card__thumb">
+                  <img src={n.image} alt="" loading="lazy" decoding="async" />
+                </span>
+              ) : (
+                <span class="news-card__thumb news-card__thumb--empty" aria-hidden="true">
+                  {n.title.trim().charAt(0)}
+                </span>
+              )}
+              <span class="news-card__body">
+                {n.date && (
+                  <time class="news-card__date" datetime={n.date.toISOString()}>
+                    {formatNewsDate(n.date)}
+                  </time>
+                )}
+                <span class="news-card__title">{n.title}</span>
+                {n.description && (
+                  <span class="news-card__excerpt">{n.description}</span>
+                )}
+                {cardTags.length > 0 && (
+                  <span class="news-card__tags">
+                    {cardTags.map((t) => (
+                      <span class="news-card__tag">#{t}</span>
+                    ))}
+                  </span>
+                )}
+              </span>
+            </a>
+          </li>
+        );
+      })}
     </ul>
   )}
 </Layout>

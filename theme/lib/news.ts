@@ -1,10 +1,17 @@
 import type { CosenseBlock, InlineNode } from "@cosense-site-kit/core";
+import { isPublicTag } from "@cosense-site-kit/theme-utils";
 
 export interface NewsSummary {
   title: string;
   slug: string;
   description: string;
   date: Date | null;
+  /** First image in the page body (core's resolved `image`), used as the
+   *  list thumbnail. Absent when the page has no images. */
+  image?: string;
+  /** Public tags on the page (control/date tags filtered out). The news tag
+   *  itself stays in here — strip it at the call site if it's redundant. */
+  tags: string[];
 }
 
 function inlineToText(nodes: InlineNode[]): string {
@@ -52,6 +59,8 @@ export function newsSummary(entry: {
     blocks: CosenseBlock[];
     publishedAt?: string;
     modifiedAt?: string;
+    image?: string;
+    tags: string[];
   };
 }): NewsSummary {
   const description = entry.data.summary?.trim() || firstParagraph(entry.data.blocks);
@@ -63,6 +72,8 @@ export function newsSummary(entry: {
     slug: entry.data.slug,
     description,
     date: iso ? new Date(iso) : null,
+    image: entry.data.image?.trim() || undefined,
+    tags: entry.data.tags.filter(isPublicTag),
   };
 }
 
