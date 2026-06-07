@@ -48,16 +48,18 @@ if (limit && limit > 0) items = items.slice(0, limit);
                   </time>
                 )}
                 <span class="news-card__title">{n.title}</span>
-                {n.description && (
-                  <span class="news-card__excerpt">{n.description}</span>
-                )}
-                {cardTags.length > 0 && (
-                  <span class="news-card__tags">
-                    {cardTags.map((t) => (
-                      <span class="news-card__tag">#{t}</span>
-                    ))}
-                  </span>
-                )}
+                {/* Always rendered (even when empty) so every card reserves the
+                    same height and the grid stays even. */}
+                <span class="news-card__excerpt">{n.description}</span>
+                {/* All tags are emitted; the client script below keeps as many
+                    as fit on one row for the current card width and folds the
+                    rest into a "+N" chip. Without JS they stay on one row and
+                    the overflow is clipped (see .news-card__tags in global.css). */}
+                <span class="news-card__tags">
+                  {cardTags.map((t) => (
+                    <span class="news-card__tag">#{t}</span>
+                  ))}
+                </span>
               </span>
             </a>
           </li>
@@ -66,3 +68,87 @@ if (limit && limit > 0) items = items.slice(0, limit);
     </ul>
   )}
 </Layout>
+
+<script>
+  // Fit each card's tag row to its current width: show as many tags as fit on
+  // one line, fold the remainder into a trailing "+N" chip. Re-runs on resize
+  // (card width changes with the grid's column count) and after web fonts load
+  // (chip widths shift on swap). No-JS degrades to a single clipped row.
+  type Row = HTMLElement;
+
+  const fitRow = (row: Row): void => {
+    const chips = Array.from(
+      row.querySelectorAll<HTMLElement>(".news-card__tag:not(.news-card__tag--more)"),
+    );
+    if (chips.length === 0) return;
+
+    let more = row.querySelector<HTMLElement>(".news-card__tag--more");
+    if (!more) {
+      more = document.createElement("span");
+      more.className = "news-card__tag news-card__tag--more";
+      row.appendChild(more);
+    }
+
+    // Reset to a clean slate before measuring.
+    more.hidden = true;
+    for (const c of chips) c.hidden = false;
+
+    const avail = row.clientWidth;
+    const styles = getComputedStyle(row);
+    const gap = parseFloat(styles.columnGap || styles.gap || "0") || 0;
+
+    // First pass: does everything fit without a "+N" chip?
+    let used = 0;
+    let allFit = true;
+    for (let i = 0; i < chips.length; i++) {
+      used += (i === 0 ? 0 : gap) + chips[i].offsetWidth;
+      if (used > avail) {
+        allFit = false;
+        break;
+      }
+    }
+    if (allFit) return;
+
+    // Second pass: reserve room for the "+N" chip (sized for a worst-case count).
+    more.hidden = false;
+    more.textContent = `+${chips.length}`;
+    const reserve = gap + more.offsetWidth;
+
+    used = 0;
+    let fit = 0;
+    for (let i = 0; i < chips.length; i++) {
+      const next = used + (i === 0 ? 0 : gap) + chips[i].offsetWidth;
+      if (next + reserve > avail) break;
+      used = next;
+      fit = i + 1;
+    }
+    if (fit < 1) fit = 1; // always keep at least one real tag
+
+    for (let i = 0; i < chips.length; i++) chips[i].hidden = i >= fit;
+    more.textContent = `+${chips.length - fit}`;
+  };
+
+  const rows = Array.from(document.querySelectorAll<Row>(".news-card__tags"));
+  if (rows.length > 0) {
+    const fitAll = () => {
+      for (const row of rows) fitRow(row);
+    };
+
+    let raf = 0;
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(fitAll);
+    };
+
+    fitAll();
+    // Per-row observer: the row's width tracks the grid column it sits in.
+    if ("ResizeObserver" in window) {
+      const ro = new ResizeObserver(schedule);
+      for (const row of rows) ro.observe(row);
+    } else {
+      window.addEventListener("resize", schedule);
+    }
+    // Web fonts change chip widths on swap — refit once they're ready.
+    document.fonts?.ready.then(fitAll);
+  }
+</script>
