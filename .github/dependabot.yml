@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      # Daily so a cosense-site-kit release shows up as a PR within a day.
+      interval: daily
+    open-pull-requests-limit: 5
+    groups:
+      # One PR bumps every @cosense-site-kit/* package together — a framework
+      # release = a single clean PR. Includes majors (pre-1.0 minors are
+      # effectively breaking, so review them) and widens the caret range when a
+      # new version is outside it.
+      cosense-site-kit:
+        patterns:
+          - "@cosense-site-kit/*"
+      # Everything else (astro, pagefind, yaml, zod): minor/patch in one PR.
+      other-minor-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@cosense-site-kit/*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - "*"
