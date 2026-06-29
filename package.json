@@ -14,7 +14,7 @@
   "dependencies": {
     "@cosense-site-kit/astro": "^0.1.5",
     "@cosense-site-kit/cli": "^0.1.9",
-    "@cosense-site-kit/core": "^0.4.0",
+    "@cosense-site-kit/core": "^0.4.1",
     "@cosense-site-kit/theme-utils": "^0.4.7",
     "astro": "^7.0.0",
     "pagefind": "^1.5.2",
