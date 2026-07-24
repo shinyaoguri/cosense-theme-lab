@@ -6,6 +6,12 @@ updates:
       # Daily so a cosense-site-kit release shows up as a PR within a day.
       interval: daily
     open-pull-requests-limit: 5
+    ignore:
+      # @cosense-site-kit/* only supports Astro ^5 || ^6 (peerDependencies).
+      # Astro 7 makes `npm ci` fail with ERESOLVE, so block major bumps until
+      # cosense-site-kit adds Astro 7 support, then drop this entry.
+      - dependency-name: "astro"
+        update-types: ["version-update:semver-major"]
     groups:
       # One PR bumps every @cosense-site-kit/* package together — a framework
       # release = a single clean PR. Includes majors (pre-1.0 minors are
