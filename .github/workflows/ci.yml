@@ -1,0 +1,50 @@
+name: CI
+
+# デプロイ (build.yml) は schedule / workflow_dispatch でしか走らないため、
+# PR の時点では何も検証されていなかった。dependabot の bump が壊れていても
+# merge でき、次の定時デプロイ = 公開サイトで初めて壊れる。ここで PR ごとに
+# 「依存が解決でき、fetch → doctor → build が通る」ことを確認する。
+on:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# 検証専用。デプロイはしないので pages / id-token は不要。
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      # restore 専用 (save しない): PR の一時的なキャッシュで build.yml 側の
+      # デプロイ用キャッシュを上書きしないため。miss してもフル fetch に
+      # フォールバックするだけ。
+      - name: Restore Cosense cache
+        uses: actions/cache/restore@v6
+        with:
+          path: .cosense-cache
+          key: cosense-cache-${{ github.run_id }}
+          restore-keys: |
+            cosense-cache-
+
+      # package-lock.json を追跡しているので build.yml と同じく npm ci。
+      # lockfile と package.json の不整合や peerDependencies の衝突
+      # (例: @cosense-site-kit/* が未対応の astro major) はここで落ちる。
+      - run: npm ci
+
+      - run: npx cosense-site fetch
+
+      # doctor は fail のみ exit 1 (warn は 0)。壊れたデプロイだけを止める。
+      - run: npx cosense-site doctor
+
+      - run: npx astro build
