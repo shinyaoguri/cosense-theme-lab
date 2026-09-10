@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@cosense-site-kit/astro": "^0.2.1",
-    "@cosense-site-kit/cli": "^0.1.12",
+    "@cosense-site-kit/cli": "^0.1.13",
     "@cosense-site-kit/core": "^0.4.2",
     "@cosense-site-kit/theme-utils": "^0.5.1",
     "astro": "^7.3.2",
