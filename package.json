@@ -16,10 +16,10 @@
     "@cosense-site-kit/cli": "^0.1.12",
     "@cosense-site-kit/core": "^0.4.2",
     "@cosense-site-kit/theme-utils": "^0.5.1",
-    "astro": "^7.3.2",
+    "astro": "^7.3.3",
     "pagefind": "^1.5.2",
-    "yaml": "^2.6.0",
-    "zod": "^4.5.2"
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
   },
   "overrides": {
     "esbuild": ">=0.28.1",
