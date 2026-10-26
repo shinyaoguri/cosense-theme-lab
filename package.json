@@ -12,10 +12,10 @@
     "doctor": "cosense-site doctor"
   },
   "dependencies": {
-    "@cosense-site-kit/astro": "^0.2.1",
-    "@cosense-site-kit/cli": "^0.1.12",
+    "@cosense-site-kit/astro": "^0.2.4",
+    "@cosense-site-kit/cli": "^0.1.14",
     "@cosense-site-kit/core": "^0.4.2",
-    "@cosense-site-kit/theme-utils": "^0.5.1",
+    "@cosense-site-kit/theme-utils": "^0.5.3",
     "astro": "^7.3.2",
     "pagefind": "^1.5.2",
     "yaml": "^2.6.0",
